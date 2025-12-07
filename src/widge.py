@@ -19,4 +19,15 @@ def mask_account_card(info_string: str) -> str:
         return f"{account_type} {masked_number}"
 
 
+def get_date(date_string: str) -> str:
+    """    Преобразует дату  в формат ДД.ММ.ГГГГ.    """
+    try:
+        dt = datetime.fromisoformat(date_string.replace('Z', '+00:00'))
+
+        return dt.strftime("%d.%m.%Y")
+    except (ValueError, AttributeError):
+        return ""
+
+
+if __name__ == "__main__":
 
