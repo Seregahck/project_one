@@ -1,10 +1,18 @@
+from datetime import datetime
+
+
 def mask_account_card(info_string: str) -> str:
-    """    Маскирует номер карты или счета в строке.    """
+    """
+    Маскирует номер карты или счета в строке.
+    """
     parts = info_string.split()
+
     if not parts:
         return ""
+
     account_type = " ".join(parts[:-1])
     number = parts[-1]
+
     if account_type.lower() == "счет":
         if len(number) >= 4:
             masked_number = "**" + number[-4:]
@@ -20,7 +28,9 @@ def mask_account_card(info_string: str) -> str:
 
 
 def get_date(date_string: str) -> str:
-    """    Преобразует дату  в формат ДД.ММ.ГГГГ.    """
+    """
+    Преобразует дату из формата ISO в формат ДД.ММ.ГГГГ.
+    """
     try:
         dt = datetime.fromisoformat(date_string.replace('Z', '+00:00'))
 
@@ -30,4 +40,3 @@ def get_date(date_string: str) -> str:
 
 
 if __name__ == "__main__":
-
