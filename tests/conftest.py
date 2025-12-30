@@ -1,18 +1,161 @@
 import pytest
-from datetime import datetime, timedelta
-import random
+
+# 1. Фикстуры для тестов get_mask_card_number
+
+@pytest.fixture
+def valid_card_numbers():
+    """Валидные номера карт для тестирования"""
+    return [
+        "1234567890123456",
+        "1111222233334444",
+        "0000000000000000",
+        "0123456789012345",
+    ]
 
 
-# Фикстуры для общих тестовых данных
+@pytest.fixture
+def invalid_card_numbers():
+    """Невалидные номера карт"""
+    return [
+        ("123", "Номер карты должен состоять из 16 цифр."),  # слишком короткий
+        ("12345678901234567", "Номер карты должен состоять из 16 цифр."),  # слишком длинный
+        ("1234abcd90123456", "Номер карты должен содержать только цифры"),  # содержит буквы
+        ("1234-5678-9012-3456", "Номер карты должен содержать только цифры"),  # содержит тире
+        ("", "Номер карты должен содержать только цифры"),  # пустая строка
+    ]
+
+
+@pytest.fixture
+def card_numbers_with_spaces():
+    """Номера карт с пробелами"""
+    return [
+        "1234 5678 9012 3456",
+        " 1234567890123456 ",
+        "1234  5678  9012  3456",
+    ]
+
+
+# 2. Фикстуры для тестов get_mask_account
+
+@pytest.fixture
+def valid_account_numbers():
+    """Валидные номера счетов"""
+    return [
+        "40817810570012345678",
+        "1234",  # минимальная длина
+        "5678",
+        "1234567890",
+    ]
+
+
+@pytest.fixture
+def invalid_account_numbers():
+    """Невалидные номера счетов"""
+    return [
+        ("123", "Номер счета должен быть длиной не менее 4 цифр"),  # слишком короткий
+        ("12", "Номер счета должен быть длиной не менее 4 цифр"),  # слишком короткий
+        ("1", "Номер счета должен быть длиной не менее 4 цифр"),  # слишком короткий
+        ("1234-abcd", "Номер счета должен содержать только цифры"),  # содержит тире и буквы
+        ("", "Номер счета должен содержать только цифры"),  # пустая строка
+    ]
+
+
+@pytest.fixture
+def account_numbers_with_spaces():
+    """Номера счетов с пробелами"""
+    return [
+        "4081 7810 5700 1234 5678",
+        " 1234 ",
+        "12 34",
+    ]
+
+
+# 3. Фикстуры для тестов mask_account_card
+
+@pytest.fixture
+def card_strings():
+    """Строки с картами для mask_account_card"""
+    return [
+        "Visa 1234567890123456",
+        "MasterCard 1111222233334444",
+        "МИР 0123456789012345",
+    ]
+
+
+@pytest.fixture
+def account_strings():
+    """Строки со счетами для mask_account_card"""
+    return [
+        "Счет 40817810570012345678",
+        "СЧЕТ 12345678901234567890",
+        "счет 1234",
+    ]
+
+
+@pytest.fixture
+def edge_strings():
+    """Крайние случаи для mask_account_card"""
+    return [
+        "",  # пустая строка
+        "   ",  # только пробелы
+        "Visa",  # только тип
+        "Счет",  # только тип
+        "Visa 123",  # слишком короткий номер
+    ]
+
+
+# 4. Фикстуры для тестов get_date
+
+@pytest.fixture
+def valid_dates():
+    """Валидные даты"""
+    return [
+        "2023-12-31",
+        "2024-02-29",  # високосный год
+        "2023-01-01",
+    ]
+
+
+@pytest.fixture
+def invalid_dates():
+    """Невалидные даты"""
+    return [
+        "",  # пустая строка
+        "not-a-date",  # не дата
+        "31.12.2023",  # обратный формат
+        "2023-13-01",  # несуществующий месяц
+    ]
+
+
+# 5. Фикстуры для тестов filter_by_state
+
 @pytest.fixture
 def sample_transactions():
-    """Базовый набор транзакций"""
+    """Образец транзакций"""
     return [
-        {"id": 1, "state": "EXECUTED", "date": "2023-01-15T10:30:00.000", "amount": 100},
-        {"id": 2, "state": "PENDING", "date": "2023-02-20T14:45:00.000", "amount": 200},
-        {"id": 3, "state": "EXECUTED", "date": "2023-03-10T09:15:00.000", "amount": 300},
-        {"id": 4, "state": "CANCELED", "date": "2023-04-05T16:20:00.000", "amount": 400},
-        {"id": 5, "state": "EXECUTED", "date": "2023-05-12T11:10:00.000", "amount": 500},
+        {"id": 1, "state": "EXECUTED"},
+        {"id": 2, "state": "PENDING"},
+        {"id": 3, "state": "EXECUTED"},
+        {"id": 4, "state": "CANCELED"},
+    ]
+
+
+@pytest.fixture
+def executed_transactions():
+    """Только EXECUTED транзакции"""
+    return [
+        {"id": 1, "state": "EXECUTED"},
+        {"id": 2, "state": "EXECUTED"},
+        {"id": 3, "state": "EXECUTED"},
+    ]
+
+
+@pytest.fixture
+def pending_transactions():
+    """Только PENDING транзакции"""
+    return [
+        {"id": 1, "state": "PENDING"},
+        {"id": 2, "state": "PENDING"},
     ]
 
 
@@ -25,71 +168,29 @@ def empty_transactions():
 @pytest.fixture
 def single_transaction():
     """Одна транзакция"""
-    return [{"id": 1, "state": "EXECUTED", "date": "2023-01-01T12:00:00.000", "amount": 1000}]
+    return [{"id": 1, "state": "EXECUTED"}]
 
 
-# Фикстуры с различными комбинациями state
+# 6. Фикстуры для тестов sort_by_date
+
 @pytest.fixture
-def only_executed_transactions():
-    """Только EXECUTED транзакции"""
+def dated_transactions():
+    """Транзакции с датами"""
     return [
-        {"id": 1, "state": "EXECUTED", "date": "2023-01-01", "amount": 100},
-        {"id": 2, "state": "EXECUTED", "date": "2023-01-02", "amount": 200},
-        {"id": 3, "state": "EXECUTED", "date": "2023-01-03", "amount": 300},
+        {"id": 1, "date": "2023-01-01"},
+        {"id": 2, "date": "2023-12-31"},
+        {"id": 3, "date": "2023-06-15"},
     ]
 
 
-@pytest.fixture
-def only_pending_transactions():
-    """Только PENDING транзакции"""
-    return [
-        {"id": 1, "state": "PENDING", "date": "2023-02-01", "amount": 50},
-        {"id": 2, "state": "PENDING", "date": "2023-02-02", "amount": 150},
-        {"id": 3, "state": "PENDING", "date": "2023-02-03", "amount": 250},
-    ]
-
-
-@pytest.fixture
-def mixed_state_transactions():
-    """Смешанные состояния без EXECUTED"""
-    return [
-        {"id": 1, "state": "PENDING", "date": "2023-03-01", "amount": 100},
-        {"id": 2, "state": "CANCELED", "date": "2023-03-02", "amount": 200},
-        {"id": 3, "state": "FAILED", "date": "2023-03-03", "amount": 300},
-    ]
-
-
-@pytest.fixture
-def transactions_without_state():
-    """Транзакции без ключа state"""
-    return [
-        {"id": 1, "date": "2023-01-01", "amount": 100},
-        {"id": 2, "state": None, "date": "2023-01-02", "amount": 200},
-        {"id": 3, "state": "", "date": "2023-01-03", "amount": 300},
-        {"id": 4, "state": "EXECUTED", "date": "2023-01-04", "amount": 400},
-    ]
-
-
-# Фикстуры с различными комбинациями date
 @pytest.fixture
 def chronological_transactions():
     """Транзакции в хронологическом порядке"""
     return [
-        {"id": 1, "state": "EXECUTED", "date": "2022-12-01T10:00:00.000", "amount": 100},
-        {"id": 2, "state": "EXECUTED", "date": "2023-01-15T11:30:00.000", "amount": 200},
-        {"id": 3, "state": "EXECUTED", "date": "2023-03-10T09:15:00.000", "amount": 300},
-        {"id": 4, "state": "EXECUTED", "date": "2023-05-20T16:45:00.000", "amount": 400},
-    ]
-
-
-@pytest.fixture
-def reverse_chronological_transactions():
-    """Транзакции в обратном хронологическом порядке"""
-    return [
-        {"id": 1, "state": "EXECUTED", "date": "2023-05-20T16:45:00.000", "amount": 400},
-        {"id": 2, "state": "EXECUTED", "date": "2023-03-10T09:15:00.000", "amount": 300},
-        {"id": 3, "state": "EXECUTED", "date": "2023-01-15T11:30:00.000", "amount": 200},
-        {"id": 4, "state": "EXECUTED", "date": "2022-12-01T10:00:00.000", "amount": 100},
+        {"id": 1, "date": "2022-12-01"},
+        {"id": 2, "date": "2023-01-15"},
+        {"id": 3, "date": "2023-03-10"},
+        {"id": 4, "date": "2023-05-20"},
     ]
 
 
@@ -97,152 +198,7 @@ def reverse_chronological_transactions():
 def same_date_transactions():
     """Транзакции с одинаковыми датами"""
     return [
-        {"id": 1, "state": "EXECUTED", "date": "2023-01-01T10:00:00.000", "amount": 100},
-        {"id": 2, "state": "PENDING", "date": "2023-01-01T11:00:00.000", "amount": 200},
-        {"id": 3, "state": "CANCELED", "date": "2023-01-01T12:00:00.000", "amount": 300},
-        {"id": 4, "state": "EXECUTED", "date": "2023-01-01T13:00:00.000", "amount": 400},
-    ]
-
-
-@pytest.fixture
-def different_date_formats():
-    """Транзакции с разными форматами дат"""
-    return [
-        {"id": 1, "state": "EXECUTED", "date": "2023-01-01"},  # только дата
-        {"id": 2, "state": "EXECUTED", "date": "2023-01-01T10:30:00"},  # дата и время
-        {"id": 3, "state": "EXECUTED", "date": "2023-01-01T10:30:00.000"},  # с миллисекундами
-        {"id": 4, "state": "EXECUTED", "date": "2023-01-01T10:30:00Z"},  # с часовым поясом
-        {"id": 5, "state": "EXECUTED", "date": "2023-01-01T10:30:00+03:00"},  # с offset
-    ]
-
-
-@pytest.fixture
-def transactions_without_date():
-    """Транзакции без ключа date"""
-    return [
-        {"id": 1, "state": "EXECUTED", "amount": 100},
-        {"id": 2, "state": "EXECUTED", "date": None, "amount": 200},
-        {"id": 3, "state": "EXECUTED", "date": "", "amount": 300},
-        {"id": 4, "state": "EXECUTED", "date": "2023-01-01", "amount": 400},
-    ]
-
-
-@pytest.fixture
-def invalid_date_transactions():
-    """Транзакции с невалидными датами"""
-    return [
-        {"id": 1, "state": "EXECUTED", "date": "not-a-date", "amount": 100},
-        {"id": 2, "state": "EXECUTED", "date": "2023-13-01", "amount": 200},  # несуществующий месяц
-        {"id": 3, "state": "EXECUTED", "date": "2023-12-32", "amount": 300},  # несуществующий день
-        {"id": 4, "state": "EXECUTED", "date": "2023-01-01", "amount": 400},  # валидная
-    ]
-
-
-# Комбинированные фикстуры
-@pytest.fixture
-def transactions_state_date_combinations():
-    """Различные комбинации state и date"""
-    return [
-        # Разные состояния, разные даты
-        {"id": 1, "state": "EXECUTED", "date": "2023-01-01", "amount": 100},
-        {"id": 2, "state": "PENDING", "date": "2023-01-02", "amount": 200},
-        {"id": 3, "state": "EXECUTED", "date": "2023-01-03", "amount": 300},
-        {"id": 4, "state": "CANCELED", "date": "2023-01-04", "amount": 400},
-        # Одинаковые состояния, разные даты
-        {"id": 5, "state": "EXECUTED", "date": "2023-02-01", "amount": 500},
-        {"id": 6, "state": "EXECUTED", "date": "2023-02-02", "amount": 600},
-        # Разные состояния, одинаковые даты
-        {"id": 7, "state": "EXECUTED", "date": "2023-03-01", "amount": 700},
-        {"id": 8, "state": "PENDING", "date": "2023-03-01", "amount": 800},
-        {"id": 9, "state": "CANCELED", "date": "2023-03-01", "amount": 900},
-    ]
-
-
-@pytest.fixture
-def large_dataset():
-    """Большой набор данных для тестирования производительности"""
-    transactions = []
-    start_date = datetime(2023, 1, 1)
-
-    for i in range(100):
-        # Чередуем состояния
-        if i % 3 == 0:
-            state = "EXECUTED"
-        elif i % 3 == 1:
-            state = "PENDING"
-        else:
-            state = "CANCELED"
-
-        # Случайная дата в пределах года
-        random_date = start_date + timedelta(days=random.randint(0, 364))
-
-        transactions.append({
-            "id": i + 1,
-            "state": state,
-            "date": random_date.isoformat(),
-            "amount": random.randint(10, 10000),
-            "description": f"Transaction {i + 1}"
-        })
-
-    return transactions
-
-
-# Параметризованные фикстуры
-@pytest.fixture(params=["EXECUTED", "PENDING", "CANCELED"])
-def single_state_transactions(request):
-    """Транзакции с одним состоянием (параметризованная)"""
-    return [
-        {"id": 1, "state": request.param, "date": "2023-01-01", "amount": 100},
-        {"id": 2, "state": request.param, "date": "2023-01-02", "amount": 200},
-        {"id": 3, "state": request.param, "date": "2023-01-03", "amount": 300},
-    ]
-
-
-@pytest.fixture(params=[True, False])
-def sort_direction(request):
-    """Направление сортировки (параметризованная)"""
-    return request.param
-
-
-# Фикстура для edge cases
-@pytest.fixture
-def edge_case_transactions():
-    """Крайние случаи"""
-    return [
-        # Пустые значения
-        {"id": 1, "state": "", "date": "", "amount": 100},
-        {"id": 2, "state": None, "date": None, "amount": 200},
-        # Очень старые/новые даты
-        {"id": 3, "state": "EXECUTED", "date": "2000-01-01", "amount": 300},
-        {"id": 4, "state": "EXECUTED", "date": "2100-12-31", "amount": 400},
-        # Специальные символы
-        {"id": 5, "state": "EXECUTED", "date": "2023-01-01T00:00:00.000", "amount": 500},
-        # Минимальные/максимальные значения
-        {"id": 6, "state": "EXECUTED", "date": "2023-01-01", "amount": 0},
-        {"id": 7, "state": "EXECUTED", "date": "2023-01-01", "amount": 9999999},
-    ]
-
-
-# Фикстуры для конкретных функций тестирования
-@pytest.fixture
-def filter_test_data():
-    """Данные специально для тестирования фильтрации"""
-    return [
-        {"id": 1, "state": "EXECUTED", "date": "2023-01-01", "should_be_filtered": True},
-        {"id": 2, "state": "PENDING", "date": "2023-01-02", "should_be_filtered": False},
-        {"id": 3, "state": "EXECUTED", "date": "2023-01-03", "should_be_filtered": True},
-        {"id": 4, "state": "", "date": "2023-01-04", "should_be_filtered": False},
-        {"id": 5, "state": None, "date": "2023-01-05", "should_be_filtered": False},
-    ]
-
-
-@pytest.fixture
-def sort_test_data():
-    """Данные специально для тестирования сортировки"""
-    return [
-        {"id": 3, "date": "2023-03-01"},
         {"id": 1, "date": "2023-01-01"},
-        {"id": 4, "date": "2023-04-01"},
-        {"id": 2, "date": "2023-02-01"},
-        # Ожидаемый порядок: id 1, 2, 3, 4
+        {"id": 2, "date": "2023-01-01"},
+        {"id": 3, "date": "2023-01-01"},
     ]
