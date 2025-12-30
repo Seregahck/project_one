@@ -89,3 +89,74 @@ def test_output_format():
     assert parts[1] == "56**"
     assert parts[2] == "****"
     assert parts[3] == "3456"
+
+
+def test_valid_account_masking():
+    """Тест корректного маскирования стандартного номера счета"""
+    # Стандартный 20-значный счет (как в РФ)
+    assert get_mask_account("40817810570012345678") == "**5678"
+    assert get_mask_account("42305810678901234567") == "**4567"
+
+    # Счет с пробелами
+    assert get_mask_account("4081 7810 5700 1234 5678") == "**5678"
+    assert get_mask_account("4230 5810 6789 0123 4567") == "**4567"
+
+
+def test_minimum_length():
+    """Тест минимальной длины счета (4 цифры)"""
+    assert get_mask_account("1234") == "**1234"
+    assert get_mask_account("5678") == "**5678"
+
+    # С пробелами для минимальной длины
+    assert get_mask_account("12 34") == "**1234"
+
+
+def test_different_lengths():
+    """Тест разных длин номеров счетов"""
+    # 5 цифр
+    assert get_mask_account("12345") == "**2345"
+    # 10 цифр
+    assert get_mask_account("1234567890") == "**7890"
+    # 15 цифр
+    assert get_mask_account("123456789012345") == "**2345"
+    # 25 цифр (длиннее стандартного)
+    assert get_mask_account("1234567890123456789012345") == "**2345"
+
+
+def test_invalid_length():
+    """Тест неправильной длины номера счета"""
+    # Меньше 4 цифр
+    with pytest.raises(ValueError, match="Номер счета должен быть длиной не менее 4 цифр"):
+        get_mask_account("123")  # 3 цифры
+
+    with pytest.raises(ValueError, match="Номер счета должен быть длиной не менее 4 цифр"):
+        get_mask_account("")  # пустая строка
+
+    with pytest.raises(ValueError, match="Номер счета должен быть длиной не менее 4 цифр"):
+        get_mask_account("12")  # 2 цифры
+
+    with pytest.raises(ValueError, match="Номер счета должен быть длиной не менее 4 цифр"):
+        get_mask_account("1")  # 1 цифра
+
+
+def test_non_digit_characters():
+    """Тест нецифровых символов в номере счета"""
+    with pytest.raises(ValueError, match="Номер счета должен содержать только цифры"):
+        get_mask_account("4081-7810-5700-1234-5678")
+
+    with pytest.raises(ValueError, match="Номер счета должен содержать только цифры"):
+        get_mask_account("4081AB10570012345678")
+
+    with pytest.raises(ValueError, match="Номер счета должен содержать только цифры"):
+        get_mask_account("4081 7810 5700 1234 567a")
+
+
+def test_edge_cases():
+    """Тест граничных случаев"""
+    # Только пробелы
+    with pytest.raises(ValueError, match="Номер счета должен содержать только цифры"):
+        get_mask_account("    ")
+
+    # Пробелы в начале и конце
+    assert get_mask_account(" 40817810570012345678 ") == "**5678"
+    assert get_mask_account("  1234  ") == "**1234"
