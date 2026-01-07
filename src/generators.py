@@ -17,3 +17,16 @@ def filter_by_currency(transactions: list, currency_code: str):
             yield transaction
 
 
+def transaction_descriptions(transactions: list):
+    """
+    Генерирует описания транзакций.
+
+    Args:
+        transactions (list): Список словарей с транзакциями
+
+    Yields:
+        str: Описание каждой транзакции
+    """
+    for transaction in transactions:
+        description = transaction.get("description", "")
+        yield description
