@@ -5,10 +5,11 @@
 ## Установка
 
 ### 1. Клонируйте репозиторий:
-```bash
+
 ```
 git clone https://github.com/Seregahck/project_one.git
-cd project_one```
+cd project_one
+```
 
 2. Установите зависимости:
 bash
@@ -211,19 +212,91 @@ mypy src/
 
 # Проверка безопасности
 bandit -r src/
-Структура проекта
-text
-project_one/
-├── src/                    # Исходный код
-│   ├── __init__.py
-│   ├── masks.py           # Маскирование карт и счетов
-│   ├── processing.py      # Обработка транзакций
-│   └── widget.py          # Вспомогательные функции
-├── tests/                 # Тесты
-│   ├── __init__.py
-│   ├── conftest.py       # Фикстуры pytest
-│   └── test_masks.py     # Все тесты
-├── coverage_report/      # Отчет покрытия тестами
-├── requirements.txt      # Зависимости
-├── pyproject.toml       # Конфигурация Poetry
-└── README.md            # Этот файл
+
+# filter_by_currency(transactions, currency_code)
+
+Фильтрует транзакции по указанной валюте.
+
+Параметры:
+
+transactions (List[Dict[str, Any]]): Список транзакций в формате словарей
+
+currency_code (str): Код валюты для фильтрации (например, "USD", "EUR")
+
+Возвращает:
+
+Iterator[Dict[str, Any]]: Генератор транзакций в указанной валюте
+
+Пример:
+
+python
+transactions = [
+    {"operationAmount": {"currency": {"code": "USD"}}, "description": "Payment 1"},
+    {"operationAmount": {"currency": {"code": "EUR"}}, "description": "Payment 2"},
+    {"operationAmount": {"currency": {"code": "USD"}}, "description": "Payment 3"},
+]
+
+usd_transactions = list(filter_by_currency(transactions, "USD"))
+
+# transaction_descriptions(transactions)
+
+Извлекает описания из списка транзакций.
+
+Параметры:
+
+transactions (List[Dict[str, Any]]): Список транзакций
+
+Возвращает:
+
+Iterator[str]: Генератор описаний транзакций
+
+Пример:
+
+python
+transactions = [
+    {"description": "Payment for groceries"},
+    {"description": "Restaurant bill"},
+    {"description": "Online shopping"},
+]
+
+descriptions = list(transaction_descriptions(transactions))
+
+# card_number_generator(start, stop)
+
+Генерирует номера банковских карт в указанном диапазоне.
+
+Параметры:
+
+start (int): Начальный номер карты (от 1)
+
+stop (int): Конечный номер карты (до 9999999999999999)
+
+Возвращает:
+
+Generator[str, None, None]: Генератор номеров карт в формате "XXXX XXXX XXXX XXXX"
+
+Исключения:
+
+ValueError: Если параметры вне допустимого диапазона
+
+Пример:
+
+python
+card_numbers = list(card_number_generator(1, 3))
+# ["0000 0000 0000 0001", "0000 0000 0000 0002", "0000 0000 0000 0003"]
+
+# Особенности
+Работа с неполными данными
+Функции корректно обрабатывают транзакции без ожидаемых полей
+
+При отсутствии поля возвращаются пустые значения или пропускаются транзакции
+
+Производительность
+Используются генераторы для экономии памяти
+
+Поддерживает обработку больших объемов данных
+
+Обработка ошибок
+card_number_generator проверяет корректность входных параметров
+
+Все функции имеют аннотации типов для статической проверки

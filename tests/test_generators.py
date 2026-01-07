@@ -2,6 +2,8 @@ import pytest
 
 from src.generators import filter_by_currency, transaction_descriptions, card_number_generator
 
+
+# Минимальные тестовые данные
 SAMPLE_TRANSACTIONS = [
     {"id": 1, "operationAmount": {"currency": {"code": "USD"}}, "description": "Payment 1"},
     {"id": 2, "operationAmount": {"currency": {"code": "EUR"}}, "description": "Payment 2"},

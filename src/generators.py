@@ -35,27 +35,27 @@ def transaction_descriptions(transactions: List[Dict[str, Any]]) -> Iterator[str
         yield description
 
 
-def card_number_generator(start: int, end: int) -> Generator[str, None, None]:
+def card_number_generator(start: int, stop: int) -> Generator[str, None, None]:
     """
     Генерирует номера банковских карт в заданном диапазоне.
 
     Args:
         start (int): Начальный номер карты (от 1)
-        end (int): Конечный номер карты (до 9999999999999999)
+        stop (int): Конечный номер карты (до 9999999999999999)
 
     Yields:
         str: Номер карты в формате "XXXX XXXX XXXX XXXX"
 
     Raises:
-        ValueError: Если start или end вне допустимого диапазона
+        ValueError: Если start или stop вне допустимого диапазона
     """
     # Проверяем диапазон
-    if start < 1 or end > 9999999999999999:
+    if start < 1 or stop > 9999999999999999:
         raise ValueError("Диапазон должен быть от 1 до 9999999999999999")
-    if start > end:
+    if start > stop:
         raise ValueError("Начальное значение должно быть меньше или равно конечному")
 
-    for number in range(start, end + 1):
+    for number in range(start, stop + 1):
         # Форматируем число в 16-значную строку с ведущими нулями
         card_number_str = f"{number:016d}"
 
