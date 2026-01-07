@@ -1,4 +1,7 @@
-def filter_by_currency(transactions: list, currency_code: str):
+from typing import Iterator, Dict, Any, List, Generator
+
+
+def filter_by_currency(transactions: List[Dict[str, Any]], currency_code: str) -> Iterator[Dict[str, Any]]:
     """
     Фильтрует транзакции по заданной валюте.
 
@@ -17,7 +20,7 @@ def filter_by_currency(transactions: list, currency_code: str):
             yield transaction
 
 
-def transaction_descriptions(transactions: list):
+def transaction_descriptions(transactions: List[Dict[str, Any]]) -> Iterator[str]:
     """
     Генерирует описания транзакций.
 
@@ -30,3 +33,35 @@ def transaction_descriptions(transactions: list):
     for transaction in transactions:
         description = transaction.get("description", "")
         yield description
+
+
+def card_number_generator(start: int, end: int) -> Generator[str, None, None]:
+    """
+    Генерирует номера банковских карт в заданном диапазоне.
+
+    Args:
+        start (int): Начальный номер карты (от 1)
+        end (int): Конечный номер карты (до 9999999999999999)
+
+    Yields:
+        str: Номер карты в формате "XXXX XXXX XXXX XXXX"
+
+    Raises:
+        ValueError: Если start или end вне допустимого диапазона
+    """
+    # Проверяем диапазон
+    if start < 1 or end > 9999999999999999:
+        raise ValueError("Диапазон должен быть от 1 до 9999999999999999")
+    if start > end:
+        raise ValueError("Начальное значение должно быть меньше или равно конечному")
+
+    for number in range(start, end + 1):
+        # Форматируем число в 16-значную строку с ведущими нулями
+        card_number_str = f"{number:016d}"
+
+        # Разбиваем на группы по 4 цифры
+        formatted_number = (
+            f"{card_number_str[0:4]} {card_number_str[4:8]} {card_number_str[8:12]} {card_number_str[12:16]}"
+        )
+
+        yield formatted_number
