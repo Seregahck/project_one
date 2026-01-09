@@ -31,7 +31,7 @@ def transaction_descriptions(transactions: List[Dict[str, Any]]) -> Iterator[str
         str: Описание каждой транзакции
     """
     for transaction in transactions:
-        description = transaction.get("description", "")
+        description = transaction.get("description")
         yield description
 
 
