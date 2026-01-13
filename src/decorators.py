@@ -1,8 +1,9 @@
 import functools
 from datetime import datetime
+from typing import Optional, Any, Callable
 
 
-def log(filename=None):
+def log(filename: Optional[str] = None) -> Callable:
     """
     Декоратор для логирования начала и конца выполнения функции.
 
@@ -11,9 +12,9 @@ def log(filename=None):
                                  Если None, логи выводятся в консоль.
     """
 
-    def decorator(func):
+    def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             # Записываем информацию о запуске функции
             start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             func_name = func.__name__
