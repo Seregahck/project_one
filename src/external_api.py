@@ -83,3 +83,6 @@ def get_transaction_amount_in_rub(transaction: Dict[str, Any]) -> float:
     if currency in ['USD', 'EUR']:
         rate = get_exchange_rate(currency, 'RUB')
         return amount * rate
+
+    # Если валюта не поддерживается - вызываем исключение
+    raise ValueError(f"Неподдерживаемая валюта: {currency}")
