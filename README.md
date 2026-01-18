@@ -162,3 +162,98 @@ def test_log_decorator():
             assert "error" in content.lower()
     finally:
         os.unlink(tmp_file)
+
+# Обработка финансовых транзакций
+
+Проект для обработки и конвертации финансовых транзакций.
+
+## Установка
+
+1. Клонируйте репозиторий
+2. Установите зависимости:
+
+poetry install
+
+## Создайте файл .env на основе .env.example:
+
+
+## Получите API ключ на apilayer.com
+
+Добавьте ключ в файл .env
+
+## Использование
+python
+from src.utils import load_transactions
+from src.external_api import get_transaction_amount_in_rub
+
+# Загрузка транзакций
+transactions = load_transactions('data/operations.json')
+
+# Конвертация суммы в рубли
+for transaction in transactions:
+    try:
+        amount_rub = get_transaction_amount_in_rub(transaction)
+        print(f"Сумма в рублях: {amount_rub}")
+    except Exception as e:
+        print(f"Ошибка обработки транзакции: {e}")
+
+## Запуск тестов
+
+poetry run pytest tests/
+
+# Структура проекта
+
+src/utils.py - функции для работы с файлами
+
+src/external_api.py - функции для работы с API
+
+tests/ - модульные тесты
+
+data/operations.json - данные транзакций
+
+.env - конфигурация (не коммитится)
+
+.env.example - шаблон конфигурации
+
+src/utils.py - функции для работы с файлами
+
+src/external_api.py - функции для работы с API
+
+tests/ - модульные тесты
+
+data/operations.json - данные транзакций
+
+.env - конфигурация (не коммитится)
+
+.env.example - шаблон конфигурации
+
+## 9. Пример использования
+```python
+# main.py
+from src.utils import load_transactions
+from src.external_api import get_transaction_amount_in_rub
+
+def main():
+    # Загружаем транзакции
+    transactions = load_transactions('data/operations.json')
+    
+    print(f"Загружено транзакций: {len(transactions)}")
+    
+    # Обрабатываем каждую транзакцию
+    for i, transaction in enumerate(transactions[:5], 1):  # Первые 5 для примера
+        try:
+            amount_rub = get_transaction_amount_in_rub(transaction)
+            currency = transaction.get('currency', 'N/A')
+            original_amount = transaction.get('amount', 'N/A')
+            
+            print(f"Транзакция {i}:")
+            print(f"  Исходная сумма: {original_amount} {currency}")
+            print(f"  В рублях: {amount_rub:.2f} RUB")
+            print("-" * 30)
+            
+        except Exception as e:
+            print(f"Ошибка обработки транзакции {i}: {e}")
+
+if __name__ == "__main__":
+    main()
+```
