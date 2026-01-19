@@ -1,5 +1,6 @@
 import os
-from typing import Dict, Any
+from typing import Any, Dict
+
 import requests
 from dotenv import load_dotenv
 
@@ -7,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 API_KEY = os.getenv('EXCHANGE_RATE_API_KEY')
-BASE_URL = "https://api.apilayer.com/exchangerates_data"
+BASE_URL = "https://apilayer.com/exchangerates_data-api"
 
 
 def get_exchange_rate(from_currency: str, to_currency: str = 'RUB') -> float:

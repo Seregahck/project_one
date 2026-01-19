@@ -38,11 +38,10 @@ def test_get_exchange_rate_api_error(mock_get):
         get_exchange_rate('USD', 'RUB')
 
 
-@patch.dict(os.environ, {'EXCHANGE_RATE_API_KEY': 'test_api_key'})
 def test_get_exchange_rate_no_api_key():
     """Тест отсутствия API ключа."""
-    # Временно удаляем переменную окружения
-    with patch.dict(os.environ, {}, clear=True):
+    # Патчим переменную API_KEY напрямую в модуле external_api
+    with patch('src.external_api.API_KEY', None):
         with pytest.raises(ValueError, match="API ключ не найден"):
             get_exchange_rate('USD', 'RUB')
 
@@ -109,7 +108,8 @@ def test_get_transaction_amount_unsupported_currency():
         'currency': 'GBP'  # Не поддерживается
     }
 
-    with pytest.raises(ValueError, match="не поддерживается"):
+    # Вариант 1: Проверяем точное сообщение
+    with pytest.raises(ValueError, match="Неподдерживаемая валюта: GBP"):
         get_transaction_amount_in_rub(transaction)
 
 

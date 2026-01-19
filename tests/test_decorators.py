@@ -1,7 +1,7 @@
 import pytest
 import os
 import tempfile
-from src.decorators import logit g
+from src.decorators import log
 
 
 # Тестирование вывода в консоль
@@ -148,7 +148,7 @@ def test_log_preserves_function_metadata():
 def test_log_without_filename_argument():
     """Тест использования декоратора без указания filename."""
 
-    @log
+    @log()
     def test_func():
         return "test"
 
