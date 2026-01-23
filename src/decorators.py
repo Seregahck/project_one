@@ -28,26 +28,25 @@ def log(filename: Optional[str] = None) -> Callable:
 
                 # Записываем в файл или выводим в консоль
                 if filename:
-                    with open(filename, 'a', encoding='utf-8') as f:
+                    with open(filename, "a", encoding="utf-8") as f:
                         f.write(log_message)
                 else:
-                    print(log_message, end='')
+                    print(log_message, end="")
 
                 return result
 
             except Exception as e:
                 # Формируем сообщение об ошибке
                 error_message = (
-                    f"{start_time} - {func_name} error: {type(e).__name__}: {str(e)}. "
-                    f"Inputs: {args}, {kwargs}\n"
+                    f"{start_time} - {func_name} error: {type(e).__name__}: {str(e)}. " f"Inputs: {args}, {kwargs}\n"
                 )
 
                 # Записываем в файл или выводим в консоль
                 if filename:
-                    with open(filename, 'a', encoding='utf-8') as f:
+                    with open(filename, "a", encoding="utf-8") as f:
                         f.write(error_message)
                 else:
-                    print(error_message, end='')
+                    print(error_message, end="")
 
                 # Пробрасываем исключение дальше
                 raise

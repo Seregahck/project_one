@@ -1,14 +1,14 @@
-import os
 import json
 import logging
-from typing import List, Dict, Any
+import os
+from typing import Any, Dict, List
 
 # Создание логгера для модуля utils
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 # Создаем папку logs если она не существует
-log_dir = 'logs'
+log_dir = "logs"
 if not os.path.exists(log_dir):
     try:
         os.makedirs(log_dir, exist_ok=True)
@@ -19,14 +19,11 @@ if not os.path.exists(log_dir):
         pass
 
 # Создание file handler для записи логов в файл
-file_handler = logging.FileHandler(os.path.join(log_dir, 'utils.log'), encoding='utf-8')
+file_handler = logging.FileHandler(os.path.join(log_dir, "utils.log"), encoding="utf-8")
 file_handler.setLevel(logging.DEBUG)
 
 # Создание форматтера для логов
-file_formatter = logging.Formatter(
-    '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-)
+file_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 file_handler.setFormatter(file_formatter)
 
 # Добавление handler к логгеру
@@ -58,7 +55,7 @@ def load_transactions(file_path: str = "data/operations.json") -> List[Dict[str,
 
         # Открываем и читаем файл
         logger.debug(f"Чтение файла: {file_path}")
-        with open(file_path, 'r', encoding='utf-8') as file:
+        with open(file_path, "r", encoding="utf-8") as file:
             data = json.load(file)
 
         # Проверяем, что данные - это список

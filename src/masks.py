@@ -1,5 +1,5 @@
-import os
 import logging
+import os
 from typing import Optional
 
 # Создание логгера для модуля masks
@@ -7,39 +7,37 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 # Создаем папку logs если она не существует
-log_dir = 'logs'
+log_dir = "logs"
 if not os.path.exists(log_dir):
     try:
         os.makedirs(log_dir, exist_ok=True)
         logger.debug(f"Создана папка для логов: {log_dir}")
-    except Exception as e:
-        print(f"Не удалось создать папку для логов: {e}")
+    except Exception:
+        print("Не удалось создать папку для логов")
         # Продолжаем без записи в файл
         pass
 
 # Создание file handler для записи логов в файл
 try:
-    file_handler = logging.FileHandler(os.path.join(log_dir, 'masks.log'), encoding='utf-8')
+    file_handler = logging.FileHandler(os.path.join(log_dir, "masks.log"), encoding="utf-8")
     file_handler.setLevel(logging.DEBUG)
 
     # Создание форматтера для логов
     file_formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
     )
     file_handler.setFormatter(file_formatter)
 
     # Добавление handler к логгеру
     logger.addHandler(file_handler)
 
-except (FileNotFoundError, PermissionError) as e:
+except (FileNotFoundError, PermissionError):
     # Если не удалось создать файл лога, создаем StreamHandler
-    print(f"Не удалось создать файл лога: {e}. Используется вывод в консоль.")
+    print("Не удалось создать файл лога. Используется вывод в консоль.")
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(logging.DEBUG)
     stream_formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
     )
     stream_handler.setFormatter(stream_formatter)
     logger.addHandler(stream_handler)
@@ -88,7 +86,7 @@ def get_mask_card_number(card_number: str) -> str:
         logger.info(f"Успешная маскировка номера карты: {card_number} -> {result}")
         return result
 
-    except ValueError as e:
+    except ValueError:
         # ValueError уже залогирован выше
         raise
     except Exception as e:
@@ -132,7 +130,7 @@ def get_mask_account(account_number: str) -> str:
         logger.info(f"Успешная маскировка номера счета: {account_number} -> {result}")
         return result
 
-    except ValueError as e:
+    except ValueError:
         # ValueError уже залогирован выше
         raise
     except Exception as e:
