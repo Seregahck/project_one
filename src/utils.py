@@ -7,8 +7,19 @@ from typing import List, Dict, Any
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+# Создаем папку logs если она не существует
+log_dir = 'logs'
+if not os.path.exists(log_dir):
+    try:
+        os.makedirs(log_dir, exist_ok=True)
+        logger.debug(f"Создана папка для логов: {log_dir}")
+    except Exception as e:
+        print(f"Не удалось создать папку для логов: {e}")
+        # Продолжаем без записи в файл
+        pass
+
 # Создание file handler для записи логов в файл
-file_handler = logging.FileHandler('utils.log', encoding='utf-8')
+file_handler = logging.FileHandler(os.path.join(log_dir, 'utils.log'), encoding='utf-8')
 file_handler.setLevel(logging.DEBUG)
 
 # Создание форматтера для логов
