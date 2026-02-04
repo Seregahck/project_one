@@ -257,3 +257,72 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+
+# Модуль чтения финансовых операций
+Модуль для чтения финансовых операций из CSV и Excel файлов с поддержкой обработки ошибок и преобразования типов.
+
+## Функции
+read_csv_transactions(file_path: str) -> List[Dict[str, Any]]
+Читает финансовые операции из CSV файла.
+
+## Параметры:
+file_path (str): Путь к CSV файлу
+
+## Возвращает:
+List[Dict[str, Any]]: Список словарей с транзакциями, где пустые значения преобразованы в None
+
+## Исключения:
+FileNotFoundError: Если файл не найден по указанному пути
+
+ValueError: Если файл пуст, не содержит заголовков или имеет некорректный формат
+
+## Пример использования:
+python
+from transaction_reader import read_csv_transactions
+
+try:
+    transactions = read_csv_transactions("operations.csv")
+    for transaction in transactions:
+        print(transaction)
+except FileNotFoundError as e:
+    print(f"Файл не найден: {e}")
+except ValueError as e:
+    print(f"Ошибка данных: {e}")
+read_excel_transactions(file_path: str, sheet_name: Union[str, int] = 0) -> List[Dict[str, Any]]
+Читает финансовые операции из Excel файла.
+
+## Параметры:
+file_path (str): Путь к Excel файлу
+
+sheet_name (Union[str, int], optional): Название или индекс листа. По умолчанию 0 (первый лист)
+
+## Возвращает:
+List[Dict[str, Any]]: Список словарей с транзакциями, где NaN/NaT значения преобразованы в None
+
+## Исключения:
+FileNotFoundError: Если файл не найден по указанному пути
+
+ValueError: Если файл пуст, лист не существует или имеет некорректный формат
+
+## Пример использования:
+python
+from transaction_reader import read_excel_transactions
+
+## Чтение первого листа
+transactions1 = read_excel_transactions("operations.xlsx")
+
+## Чтение листа по имени
+transactions2 = read_excel_transactions("operations.xlsx", sheet_name="2024")
+
+## Чтение листа по индексу
+transactions3 = read_excel_transactions("operations.xlsx", sheet_name=1)
+Особенности
+Обработка пустых значений
+В CSV файлах: пустые строки ("") преобразуются в None
+
+В Excel файлах: значения NaN и NaT преобразуются в None
+
+## Кодировка
+CSV файлы читаются с кодировкой UTF-8
+
+Excel файлы обрабатываются с автоматическим определением кодировки
