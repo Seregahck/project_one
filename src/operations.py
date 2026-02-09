@@ -74,3 +74,153 @@ def process_bank_operations(data: List[Dict], categories: List[str]) -> Dict[str
         result[category] = total
 
     return result
+
+
+def filter_by_status(data: List[Dict], status: str) -> List[Dict]:
+    """
+    Фильтрует транзакции по статусу.
+
+    Args:
+        data: Список транзакций
+        status: Статус для фильтрации
+
+    Returns:
+        Отфильтрованный список транзакций
+    """
+    if not data:
+        return []
+
+    status_upper = status.upper()
+    return [t for t in data if t.get('state', '').upper() == status_upper]
+
+
+def sort_transactions(data: List[Dict], reverse: bool = False) -> List[Dict]:
+    """
+    Сортирует транзакции по дате.
+
+    Args:
+        data: Список транзакций
+        reverse: Если True - по убыванию, иначе по возрастанию
+
+    Returns:
+        Отсортированный список транзакций
+    """
+    def get_date(transaction: Dict) -> datetime:
+        date_str = transaction.get('date', '')
+        try:
+            return datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+        except (ValueError, AttributeError):
+            return datetime.min
+
+    return sorted(data, key=get_date, reverse=reverse)
+
+
+def filter_rub_transactions(data: List[Dict]) -> List[Dict]:
+    """
+    Фильтрует только рублевые транзакции.
+
+    Args:
+        data: Список транзакций
+
+    Returns:
+        Список рублевых транзакций
+    """
+    return [
+        t for t in data
+        if t.get('operationAmount', {}).get('currency', {}).get('code') == 'RUB'
+    ]
+
+
+def mask_account_number(account: str) -> str:
+    """
+    Маскирует номер счета или карты.
+
+    Args:
+        account: Номер счета или карты
+
+    Returns:
+        Замаскированный номер
+    """
+    if not account:
+        return ""
+
+    # Обработка счета
+    if 'Счет' in account:
+        numbers = ''.join(filter(str.isdigit, account))
+        if len(numbers) >= 4:
+            return f"Счет **{numbers[-4:]}"
+        return account
+
+    # Обработка карты
+    parts = account.split()
+    if len(parts) >= 2:
+        name = ' '.join(parts[:-1])
+        number = parts[-1]
+        digits = ''.join(filter(str.isdigit, number))
+
+        if len(digits) == 16:
+            masked = f"{digits[:4]} {digits[4:6]}** **** {digits[-4:]}"
+            return f"{name} {masked}"
+
+    return account
+
+
+def format_transaction(transaction: Dict) -> str:
+    """
+    Форматирует транзакцию для вывода.
+
+    Args:
+        transaction: Словарь с данными транзакции
+
+    Returns:
+        Отформатированная строка
+    """
+    # Форматирование даты
+    date_str = transaction.get('date', '')
+    try:
+        date = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+        formatted_date = date.strftime('%d.%m.%Y')
+    except (ValueError, AttributeError):
+        formatted_date = 'Дата не указана'
+
+    description = transaction.get('description', 'Без описания')
+
+    # Форматирование отправителя и получателя
+    from_account = mask_account_number(transaction.get('from', ''))
+    to_account = mask_account_number(transaction.get('to', ''))
+
+    # Форматирование суммы
+    amount_data = transaction.get('operationAmount', {})
+    amount = amount_data.get('amount', '0')
+    currency = amount_data.get('currency', {}).get('name', 'руб.')
+
+    result_lines = [f"{formatted_date} {description}"]
+
+    if from_account and to_account:
+        result_lines.append(f"{from_account} -> {to_account}")
+    elif from_account:
+        result_lines.append(f"{from_account}")
+    elif to_account:
+        result_lines.append(f"{to_account}")
+
+    result_lines.append(f"Сумма: {amount} {currency}\n")
+
+    return '\n'.join(result_lines)
+
+
+def load_json_transactions(filename: str) -> List[Dict]:
+    """
+    Загружает транзакции из JSON файла.
+
+    Args:
+        filename: Имя файла
+
+    Returns:
+        Список транзакций
+    """
+    import json
+    try:
+        with open(filename, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return []
