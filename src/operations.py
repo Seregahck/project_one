@@ -1,7 +1,7 @@
 import re
 from collections import Counter
 from datetime import datetime
-from typing import List, Dict, Optional
+from typing import Dict, List
 
 
 def process_bank_search(data: List[Dict], search: str) -> List[Dict]:
@@ -26,7 +26,7 @@ def process_bank_search(data: List[Dict], search: str) -> List[Dict]:
 
     result = []
     for transaction in data:
-        description = transaction.get('description', '')
+        description = transaction.get("description", "")
         if not description:
             continue
 
@@ -56,7 +56,7 @@ def process_bank_operations(data: List[Dict], categories: List[str]) -> Dict[str
     # Извлекаем все описания
     descriptions = []
     for transaction in data:
-        description = transaction.get('description', '')
+        description = transaction.get("description", "")
         if description:
             descriptions.append(description)
 
@@ -91,7 +91,7 @@ def filter_by_status(data: List[Dict], status: str) -> List[Dict]:
         return []
 
     status_upper = status.upper()
-    return [t for t in data if t.get('state', '').upper() == status_upper]
+    return [t for t in data if t.get("state", "").upper() == status_upper]
 
 
 def sort_transactions(data: List[Dict], reverse: bool = False) -> List[Dict]:
@@ -105,10 +105,11 @@ def sort_transactions(data: List[Dict], reverse: bool = False) -> List[Dict]:
     Returns:
         Отсортированный список транзакций
     """
+
     def get_date(transaction: Dict) -> datetime:
-        date_str = transaction.get('date', '')
+        date_str = transaction.get("date", "")
         try:
-            return datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+            return datetime.fromisoformat(date_str.replace("Z", "+00:00"))
         except (ValueError, AttributeError):
             return datetime.min
 
@@ -125,10 +126,7 @@ def filter_rub_transactions(data: List[Dict]) -> List[Dict]:
     Returns:
         Список рублевых транзакций
     """
-    return [
-        t for t in data
-        if t.get('operationAmount', {}).get('currency', {}).get('code') == 'RUB'
-    ]
+    return [t for t in data if t.get("operationAmount", {}).get("currency", {}).get("code") == "RUB"]
 
 
 def mask_account_number(account: str) -> str:
@@ -145,8 +143,8 @@ def mask_account_number(account: str) -> str:
         return ""
 
     # Обработка счета
-    if 'Счет' in account:
-        numbers = ''.join(filter(str.isdigit, account))
+    if "Счет" in account:
+        numbers = "".join(filter(str.isdigit, account))
         if len(numbers) >= 4:
             return f"Счет **{numbers[-4:]}"
         return account
@@ -154,9 +152,9 @@ def mask_account_number(account: str) -> str:
     # Обработка карты
     parts = account.split()
     if len(parts) >= 2:
-        name = ' '.join(parts[:-1])
+        name = " ".join(parts[:-1])
         number = parts[-1]
-        digits = ''.join(filter(str.isdigit, number))
+        digits = "".join(filter(str.isdigit, number))
 
         if len(digits) == 16:
             masked = f"{digits[:4]} {digits[4:6]}** **** {digits[-4:]}"
@@ -176,23 +174,23 @@ def format_transaction(transaction: Dict) -> str:
         Отформатированная строка
     """
     # Форматирование даты
-    date_str = transaction.get('date', '')
+    date_str = transaction.get("date", "")
     try:
-        date = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
-        formatted_date = date.strftime('%d.%m.%Y')
+        date = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+        formatted_date = date.strftime("%d.%m.%Y")
     except (ValueError, AttributeError):
-        formatted_date = 'Дата не указана'
+        formatted_date = "Дата не указана"
 
-    description = transaction.get('description', 'Без описания')
+    description = transaction.get("description", "Без описания")
 
     # Форматирование отправителя и получателя
-    from_account = mask_account_number(transaction.get('from', ''))
-    to_account = mask_account_number(transaction.get('to', ''))
+    from_account = mask_account_number(transaction.get("from", ""))
+    to_account = mask_account_number(transaction.get("to", ""))
 
     # Форматирование суммы
-    amount_data = transaction.get('operationAmount', {})
-    amount = amount_data.get('amount', '0')
-    currency = amount_data.get('currency', {}).get('name', 'руб.')
+    amount_data = transaction.get("operationAmount", {})
+    amount = amount_data.get("amount", "0")
+    currency = amount_data.get("currency", {}).get("name", "руб.")
 
     result_lines = [f"{formatted_date} {description}"]
 
@@ -205,7 +203,7 @@ def format_transaction(transaction: Dict) -> str:
 
     result_lines.append(f"Сумма: {amount} {currency}\n")
 
-    return '\n'.join(result_lines)
+    return "\n".join(result_lines)
 
 
 def load_json_transactions(filename: str) -> List[Dict]:
@@ -219,8 +217,12 @@ def load_json_transactions(filename: str) -> List[Dict]:
         Список транзакций
     """
     import json
+    from typing import Dict, List
+
     try:
-        with open(filename, 'r', encoding='utf-8') as f:
-            return json.load(f)
+        with open(filename, "r", encoding="utf-8") as f:
+            result: List[Dict] = json.load(f)
+            return result
     except (FileNotFoundError, json.JSONDecodeError):
-        return []
+        empty_result: List[Dict] = []
+        return empty_result
